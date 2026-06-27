@@ -3,6 +3,7 @@ import socket
 import platform
 import ipaddress
 import psutil
+from sentinel_formatter.network_event_formatter import format_network_event
 from datetime import datetime
 from pathlib import Path
 
@@ -63,29 +64,20 @@ def collect_network_connections():
 
     for conn in psutil.net_connections(kind="inet"):
         connection_data = {
-	    "timestamp": datetime.now().isoformat(),
-            "event_type": "network_connection",
-            "agent_name": "SentinelNode",
-            "agent_phase": "phase_1_collector",
-            "hostname": hostname,
             "protocol_family": get_protocol_family(conn.family),
             "protocol": get_socket_type(conn.type),
-
             "local_address": None,
             "local_port": None,
-
             "remote_address": None,
             "remote_port": None,
             "is_remote_present": False,
             "is_external_remote": False,
-
             "status": conn.status,
             "pid": conn.pid,
-
             "process_name": None,
             "process_exe": None,
             "process_username": None,
-            "process_create_time": None
+            "process_create_time": None,
         }
 
         if conn.laddr:
@@ -115,7 +107,9 @@ def collect_network_connections():
                 connection_data["process_username"] = "unknown"
                 connection_data["process_create_time"] = "unknown"
 
-        connections.append(connection_data)
+        # Moved outside the try/except block so it runs for ALL successful connections
+        formatted_event = format_network_event(connection_data, hostname)
+        connections.append(formatted_event)
 
     return connections
 
