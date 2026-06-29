@@ -1,18 +1,16 @@
-from collector.network_collector import (
-    collect_network_connections,
-    save_connections_to_json
-)
+from collector.network_collector import collect_network_connections
+from sentinel_logger.json_logger import save_events_to_json
 
 
 def main():
-    print("[*] SentinelNode Phase 2 Event Normalization Started")
+    print("[*] SentinelNode Phase 3 Logging Layer Started")
 
-    connections = collect_network_connections()
-    save_connections_to_json(connections)
+    events = collect_network_connections()
+    saved_count = save_events_to_json(events)
 
-    print(f"[+] Collected and normalized {len(connections)} network connection events")
-    print("[+] Saved normalized events to logs/network_connections.json")
-    print("[*] SentinelNode Phase 2 Event Normalization Finished")
+    print(f"[+] Collected and normalized {len(events)} network connection events")
+    print(f"[+] Saved {saved_count} events to logs/network_connections.json")
+    print("[*] SentinelNode Phase 3 Logging Layer Finished")
 
 
 if __name__ == "__main__":

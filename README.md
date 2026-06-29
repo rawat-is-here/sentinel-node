@@ -10,44 +10,11 @@ This project is being built step by step to understand how endpoint telemetry, d
 
 Current Phase
 
-Phase 2 — Event Normalization
+Phase 3 — Logging Layer
 
-The current version collects active network connections from the local machine and enriches them with process context.
+The current version collects active network connections from the local machine, enriches them with process context, converts them into normalized SentinelNode events, and saves the final output through a dedicated JSON logging layer.
 
-The raw collected data is then converted into a normalized SentinelNode event format.
-
-The normalized event separates:
-
-- Event metadata
-- Host information
-- Network details
-- Process details
-
-This makes the output easier to read, analyze, and later use for detection rules.
-
----
-
-Why This Project Exists
-
-Security teams do not investigate network connections in isolation.
-
-A raw connection like this:
-
-192.168.1.10:53252 → 93.184.216.34:443
-
-only tells us that a machine connected to a remote IP address.
-
-For security analysis, we need more context:
-
-- Which process created the connection?
-- Where is the executable located?
-- Which user owns the process?
-- Is the remote IP private or public?
-- Is the connection using TCP or UDP?
-- Is the connection established, listening, or closed?
-- Did the process start recently?
-
-SentinelNode is built to collect this type of endpoint telemetry and gradually evolve into a small defensive detection system.
+The project now separates collection, formatting, and logging into different modules.
 
 ---
 
@@ -76,6 +43,8 @@ Current capabilities:
 
 Current Architecture
 
+## Current Architecture
+
 main.py
 │
 ├── collector/
@@ -83,6 +52,9 @@ main.py
 │
 ├── sentinel_formatter/
 │   └── network_event_formatter.py
+│
+├── sentinel_logger/
+│   └── json_logger.py
 │
 └── logs/
     └── network_connections.json
@@ -115,7 +87,7 @@ Project Structure
 
 SentinelNode/
 ├── collector/
-│   ├── init.py
+│   ├── __init__.py
 │   └── network_collector.py
 ├── config/
 ├── docs/
@@ -123,13 +95,15 @@ SentinelNode/
 ├── sample_logs/
 │   └── network_connections_sample.json
 ├── sentinel_formatter/
-│   ├── init.py
+│   ├── __init__.py
 │   └── network_event_formatter.py
+├── sentinel_logger/
+│   ├── __init__.py
+│   └── json_logger.py
 ├── .gitignore
 ├── main.py
 ├── README.md
 └── requirements.txt
-
 ---
 
 Normalized Event Format
@@ -192,10 +166,10 @@ head -40 logs/network_connections.json
 
 Example Runtime Output
 
-[*] SentinelNode Phase 1 Collector Started
-[+] Collected 12 network connections
-[+] Saved results to logs/network_connections.json
-[*] SentinelNode Phase 1 Collector Finished
+[[*] SentinelNode Phase 3 Logging Layer Started
+[+] Collected and normalized 12 network connection events
+[+] Saved 12 events to logs/network_connections.json
+[*] SentinelNode Phase 3 Logging Layer Finished
 
 Note: the runtime message may still mention Phase 1 while the internal event format is being upgraded during Phase 2.
 
@@ -278,6 +252,10 @@ Compare current endpoint behavior against previously observed normal behavior.
 Phase 9 — Dashboard
 
 Build a simple dashboard to view events and alerts.
+
+Move JSON saving into a dedicated logging module.
+
+Status: Completed.
 
 ---
 

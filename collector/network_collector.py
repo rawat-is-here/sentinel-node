@@ -1,15 +1,13 @@
-import json
+
 import socket
 import platform
 import ipaddress
 import psutil
 from sentinel_formatter.network_event_formatter import format_network_event
 from datetime import datetime
-from pathlib import Path
 
 
-LOG_DIR = Path("logs")
-LOG_FILE = LOG_DIR / "network_connections.json"
+
 
 
 def get_protocol_family(family):
@@ -114,8 +112,3 @@ def collect_network_connections():
     return connections
 
 
-def save_connections_to_json(connections):
-    LOG_DIR.mkdir(exist_ok=True)
-
-    with open(LOG_FILE, "w") as file:
-        json.dump(connections, file, indent=4)
